@@ -199,7 +199,17 @@ module Cucumber
         status ||= @status || :passed
         width = @table.col_width(@col_index)
         cell_text = escape_cell(value.to_s || '')
-        padded = cell_text + (' ' * (width - cell_text.unpack('U*').length))
+
+        re = /(\p{Han}|\p{Katakana}|\p{Hiragana}|\p{Hangul})/
+        cell_text_length = cell_text.split(re).map.with_index {|s, i|
+          if i % 2 == 0
+            s.size
+          else
+            s.size * 2
+          end
+        }.inject(0, :+)
+
+        padded = cell_text + (' ' * (width - cell_text_length))
         prefix = cell_prefix(status)
         @io.print(' ' + format_string("#{prefix}#{padded}", status) + ::Cucumber::Term::ANSIColor.reset(" |"))
         @io.flush

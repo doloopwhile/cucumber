@@ -245,8 +245,8 @@ module Cucumber
         end
       end
 
-      # Printer to handle background steps for anything but the first scenario in a 
-      # feature. These steps should not be printed, but their results still need to 
+      # Printer to handle background steps for anything but the first scenario in a
+      # feature. These steps should not be printed, but their results still need to
       # be recorded.
       class HiddenBackgroundPrinter < Struct.new(:formatter, :runtime, :background)
 
@@ -511,7 +511,14 @@ module Cucumber
 
             private
             def char_length_of(cell)
-              escape_cell(cell).unpack('U*').length
+              re = /(\p{Han}|\p{Katakana}|\p{Hiragana}|\p{Hangul})/
+              cell_text.split(re).map.with_index {|s, i|
+                if i % 2 == 0
+                  s.size
+                else
+                  s.size * 2
+                end
+              }.inject(:+)
             end
           end
         end
